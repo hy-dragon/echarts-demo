@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        font-family: 'Microsoft YaHei', sans-serif;
+      }
+
+      #echart-container {
+        width: 100%;
+        height: 100%;
+        background-color: #f5f5f5;
+      }
+    </style>
+
+    <script src="./js/echart.min.js"></script>
+  </head>
+
+  <body>
+    <div id="echart-container"></div>
+
+    <script>
+      // 初始化ECharts实例
+      const myChart = echarts.init(document.getElementById('echart-container'));
+
+      // 当前时间（8月31日）
+      const currentMonth = 8;
+      const currentMonthIndex = 2; // 8月在6-12月数组中的索引
+
+      // 项目数据配置 - 默认所有项目为正常绿色状态
+      const projects = [
+        {
+          name: '智慧农业',
+          status: 'green',
+          statusText: '正常',
+          description: '机器场项目PR完成，商务合同签署中',
+          color: '#5470c6'
+        },
+        {
+          name: '数字政务',
+          status: 'green',
+          statusText: '正常',
+          description: '系统集成测试进行中，按计划推进',
+          color: '#91cc75'
+        },
+        {
+          name: '智慧交通',
+          status: 'green',
+          statusText: '正常',
+          description: '设备采购顺利，项目进展良好',
+          color: '#fac858'
+        }
+      ];
+
+      // 节点数据（固定位置）
+      const nodePositions = [
+        // 智慧农业节点
+        { projectIndex: 0, monthIndex: 0, shape: 'circle', desc: '启动建设发布' },
+        { projectIndex: 0, monthIndex: 1, shape: 'circle', desc: '广兰新工业拆建上线' },
+        { projectIndex: 0, monthIndex: 2, shape: 'circle', desc: '项目评审' },
+        
+        // 数字政务节点
+        { projectIndex: 1, monthIndex: 3, shape: 'circle', desc: '服务效能提升工作' },
+        { projectIndex: 1, monthIndex: 5, shape: 'circle', desc: '系统营业交易' },
+        { projectIndex: 1, monthIndex: 6, shape: 'circle', desc: '开通调试' },
+        
+        // 智慧交通节点
+        { projectIndex: 2, monthIndex: 4, shape: 'triangle', desc: '自动化全面开通' },
+        { projectIndex: 2, monthIndex: 5, shape: 'circle', desc: '智慧交通交工总体' },
+        { projectIndex: 2, monthIndex: 6, shape: 'triangle', desc: '各大网关调整开通' }
+      ];
+
+      // 状态颜色映射
+      const statusColors = {
+        'green': '#52c41a',
+        'yellow': '#faad14', 
+        'red': '#f5222d',
+        'default': '#52c41a'
+      };
+
+      // 获取状态颜色的函数，默认返回绿色
+      function getStatusColor(status) {
+        return statusColors[status] || statusColors['default'];
+      }
+
+      // 获取状态文本的函数，默认返回"正常"
+      function getStatusText(status, statusText) {
+        if (statusText) return statusText;
+        return status === 'green' ? '正常' : 
+               status === 'yellow' ? '预警' : 
+               status === 'red' ? '延期' : '正常';
+      }
+
+      // 月份数据
+      const months = ['6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      const projectNames = projects.map(p => p.name);
+
+      // ECharts配置
+      const option = {
+        title: {
+          text: '项目进度时间线',
+          left: 'center',
+          top: 20,
+          textStyle: {
+            color: '#333',
+            fontSize: 18,
+            fontWeight: 'bold'
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          confine: true,
+          formatter: function(params) {
+            return `
+              <div style="padding: 8px;">
+                <div style="font-weight: bold;">${params.name || '项目节点'}</div>
+                <div style="color: #666;">详细信息</div>
+              </div>
+            `;
+          }
+        },
+        grid: {
+          left: 450, // 增加左侧空间，为项目状态标签和Y轴标签留出空间
+          right: 80,
+          top: 80,
+          bottom: 80,
+          containLabel: true // 确保标签有足够的显示空间
+        },
+        xAxis: {
+          type: 'category',
+          data: months,
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: '#d9d9d9',
+              width: 2
+            }
+          },
+          axisTick: {
+            show: true,
+            lineStyle: {
+              color: '#d9d9d9'
+            }
+          },
+          axisLabel: {
+            color: '#666',
+            fontSize: 12,
+            fontWeight: 'bold',
+            backgroundColor: '#e6f4ff',
+            padding: [6, 10],
+            borderRadius: 4
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: '#f0f0f0'
+            }
+          }
+        },
+        yAxis: {
+          type: 'category',
+          data: projectNames,
+          axisLine: { 
+            show: true,
+            lineStyle: {
+              color: '#d9d9d9'
+            }
+          },
+          axisTick: { 
+            show: true,
+            lineStyle: {
+              color: '#d9d9d9'
+            }
+          },
+          axisLabel: { 
+            show: true, // 显示Y轴标签
+            interval: 0, // 显示所有标签
+            color: function(value, index) {
+              // 为不同项目设置不同颜色
+              return projects[index] ? projects[index].color : '#666';
+            },
+            fontSize: 14,
+            fontWeight: 'bold',
+            margin: 15
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: '#f0f0f0'
+            }
+          }
+        },
+        series: [
+          // 散点图显示节点
+          {
+            name: '项目节点',
+            type: 'scatter',
+            symbolSize: function(data) {
+              return 16;
+            },
+            symbol: function(data) {
+              const nodeData = nodePositions[data[2]] || {};
+              return nodeData.shape === 'triangle' ? 'triangle' : 'circle';
+            },
+            itemStyle: {
+              color: function(params) {
+                const nodeData = nodePositions[params.data[2]] || {};
+                const project = projects[nodeData.projectIndex] || {};
+                return project.color || '#5470c6';
+              },
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            data: nodePositions.map((node, index) => [
+              node.monthIndex,
+              node.projectIndex,
+              index,
+              node.desc
+            ]),
+            z: 3
+          },
+          // 项目时间线
+          {
+            name: '时间线',
+            type: 'custom',
+            data: projects.map((project, index) => ({
+              project: project,
+              projectIndex: index
+            })),
+            renderItem: function(params, api) {
+              try {
+                if (!params || !params.data || !params.data.project) {
+                  return null;
+                }
+                
+                const project = params.data.project;
+                const projectIndex = params.data.projectIndex;
+                const color = project.color;
+                
+                // 获取该项目的所有节点
+                const projectNodes = nodePositions.filter(node => node.projectIndex === projectIndex);
+                if (projectNodes.length === 0) return null;
+                
+                const minMonth = Math.min(...projectNodes.map(n => n.monthIndex));
+                const maxMonth = Math.max(...projectNodes.map(n => n.monthIndex));
+                
+                const startPoint = api.coord([minMonth, projectIndex]);
+                const endPoint = api.coord([maxMonth, projectIndex]);
+                
+                return {
+                  type: 'line',
+                  x: 0,
+                  y: 0,
+                  style: {
+                    stroke: color,
+                    lineWidth: 4,
+                    opacity: 0.6
+                  },
+                  shape: {
+                    x1: startPoint[0],
+                    y1: startPoint[1],
+                    x2: endPoint[0],
+                    y2: endPoint[1]
+                  }
+                };
+              } catch (error) {
+                console.error('时间线渲染错误:', error);
+                return null;
+              }
+            },
+            z: 1
+          },
+          // 自定义项目状态标签
+          {
+            name: '项目状态',
+            type: 'custom',
+            data: projects.map((project, index) => ({ 
+              project: project, 
+              projectIndex: index 
+            })),
+            renderItem: function(params, api) {
+              try {
+                if (!params || !params.data || !params.data.project) {
+                  return null;
+                }
+                
+                const project = params.data.project;
+                const projectIndex = params.data.projectIndex;
+                const statusColor = getStatusColor(project.status);
+                const statusText = getStatusText(project.status, project.statusText);
+                
+                const yCoord = api.coord([0, projectIndex])[1];
+                const xStart = 120; // 调整位置，为Y轴标签留出空间
+                
+                return {
+                  type: 'group',
+                  children: [
+                    // 状态指示灯
+                    {
+                      type: 'circle',
+                      x: xStart,
+                      y: yCoord,
+                      style: {
+                        fill: statusColor,
+                        stroke: '#fff',
+                        lineWidth: 1
+                      },
+                      shape: {
+                        r: 6
+                      }
+                    },
+                    // 状态文字
+                    {
+                      type: 'text',
+                      x: xStart + 15,
+                      y: yCoord - 5,
+                      style: {
+                        text: statusText,
+                        textAlign: 'left',
+                        textVerticalAlign: 'middle',
+                        fill: statusColor,
+                        fontSize: 11,
+                        fontWeight: 'bold'
+                      }
+                    },
+                    // 描述文字
+                    {
+                      type: 'text',
+                      x: xStart + 15,
+                      y: yCoord + 8,
+                      style: {
+                        text: (project.description || '项目进展顺利').length > 25 ? 
+                              (project.description || '项目进展顺利').substring(0, 25) + '...' : 
+                              (project.description || '项目进展顺利'),
+                        textAlign: 'left',
+                        textVerticalAlign: 'middle',
+                        fill: '#666',
+                        fontSize: 10
+                      }
+                    }
+                  ]
+                };
+              } catch (error) {
+                console.error('项目状态渲染错误:', error);
+                return null;
+              }
+            },
+            z: 2
+          },
+          // 当前时间线
+          {
+            name: '当前时间',
+            type: 'custom',
+            data: [{ 
+              monthIndex: currentMonthIndex,
+              label: '当前时间'
+            }],
+            renderItem: function(params, api) {
+              try {
+                if (!params || !params.data) {
+                  return null;
+                }
+                
+                const monthIndex = params.data.monthIndex;
+                if (typeof monthIndex !== 'number') {
+                  return null;
+                }
+                
+                const point = api.coord([monthIndex, 1]);
+                if (!point || point.length < 2) {
+                  return null;
+                }
+                
+                return {
+                  type: 'group',
+                  children: [
+                    // 当前时间垂直线
+                    {
+                      type: 'line',
+                      x: 0,
+                      y: 0,
+                      style: {
+                        stroke: '#ff4d4f',
+                        lineWidth: 3,
+                        opacity: 0.8
+                      },
+                      shape: {
+                        x1: point[0],
+                        y1: point[1] - 80,
+                        x2: point[0],
+                        y2: point[1] + 80
+                      }
+                    },
+                    // 当前时间标签
+                    {
+                      type: 'rect',
+                      x: point[0] - 25,
+                      y: point[1] - 100,
+                      style: {
+                        fill: '#ff4d4f',
+                        stroke: '#fff',
+                        lineWidth: 1
+                      },
+                      shape: {
+                        width: 50,
+                        height: 20,
+                        r: 3
+                      }
+                    },
+                    {
+                      type: 'text',
+                      x: point[0],
+                      y: point[1] - 90,
+                      style: {
+                        text: '当前时间',
+                        textAlign: 'center',
+                        textVerticalAlign: 'middle',
+                        fill: '#fff',
+                        fontSize: 10,
+                        fontWeight: 'bold'
+                      }
+                    }
+                  ]
+                };
+              } catch (error) {
+                console.error('当前时间线渲染错误:', error);
+                return null;
+              }
+            },
+            z: 4
+          }
+        ]
+      };
+
+      // 渲染图表
+      try {
+        myChart.setOption(option);
+        console.log('图表渲染成功 - Y轴项目名称已显示');
+      } catch (error) {
+        console.error('图表渲染失败:', error);
+      }
+
+      // 窗口大小改变时重新渲染
+      window.addEventListener('resize', function() {
+        try {
+          myChart.resize();
+        } catch (error) {
+          console.error('图表resize失败:', error);
+        }
+      });
+
+      // 动态更改项目状态的函数（可选功能）
+      function updateProjectStatus(projectIndex, newStatus) {
+        if (projectIndex >= 0 && projectIndex < projects.length) {
+          projects[projectIndex].status = newStatus;
+          projects[projectIndex].statusText = getStatusText(newStatus);
+          
+          // 根据状态更新描述
+          switch(newStatus) {
+            case 'green':
+              projects[projectIndex].description = '项目进展顺利，按计划推进';
+              break;
+            case 'yellow':
+              projects[projectIndex].description = '项目存在风险，需要关注';
+              break;
+            case 'red':
+              projects[projectIndex].description = '项目存在延期风险，需要采取措施';
+              break;
+          }
+          
+          myChart.setOption(option);
+          console.log(`项目 ${projects[projectIndex].name} 状态已更新为: ${getStatusText(newStatus)}`);
+        }
+      }
+    </script>
+  </body>
+</html>

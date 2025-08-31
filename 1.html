@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+
+      #echart-container {
+        width: 100%;
+        height: 100%;
+        background-color: #efefef;
+      }
+    </style>
+
+    <script src="./js/echart.min.js"></script>
+  </head>
+
+  <body>
+    <div id="echart-container"></div>
+
+    <script>
+      // 初始化ECharts实例
+      const myChart = echarts.init(document.getElementById('echart-container'));
+
+      // 项目数据配置
+      const projects = [
+        {
+          name: '智慧农业',
+          color: '#5470c6',
+          nodes: [
+            { month: 6, day: 27, shape: 'circle', description: '4/22启动建设发布' },
+            { month: 7, day: 28, shape: 'circle', description: '广兰新工业拆建上线' },
+            { month: 7, day: 29, shape: 'circle', description: '马坝收入增长上线' },
+            { month: 8, day: 33, shape: 'circle', description: '' },
+            { month: 8, day: 34, shape: 'circle', description: '' },
+            { month: 8, day: 35, shape: 'circle', description: '' }
+          ]
+        },
+        {
+          name: '数字政务',
+          color: '#91cc75',
+          nodes: [
+            { month: 9, day: 36, shape: 'circle', description: '服务效能提升工作' },
+            { month: 9, day: 37, shape: 'circle', description: '产业整体操作体系' },
+            { month: 11, day: 47, shape: 'circle', description: '系统营业交易' },
+            { month: 12, day: 51, shape: 'circle', description: '开通调试' }
+          ]
+        },
+        {
+          name: '智慧交通',
+          color: '#fac858',
+          nodes: [
+            { month: 10, day: 43, shape: 'triangle', description: '自动化全面开通' },
+            { month: 11, day: 47, shape: 'circle', description: '智慧交通交工总体' },
+            { month: 12, day: 51, shape: 'triangle', description: '各大网关调整开通' }
+          ]
+        }
+      ];
+
+      // 生成月份数据
+      const months = ['6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      const monthNumbers = [6, 7, 8, 9, 10, 11, 12];
+
+      // 准备图表数据
+      const seriesData = [];
+      const projectNames = [];
+      
+      projects.forEach((project, projectIndex) => {
+        projectNames.push(project.name);
+        project.nodes.forEach(node => {
+          seriesData.push({
+            value: [node.month - 6, projectIndex, node.shape, project.color, node.description],
+            itemStyle: {
+              color: project.color
+            }
+          });
+        });
+      });
+
+      // ECharts配置
+      const option = {
+        title: {
+          text: '项目进度时间线',
+          left: 'center',
+          textStyle: {
+            color: '#333',
+            fontSize: 18
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: function(params) {
+            const data = params.data.value;
+            const month = monthNumbers[data[0]];
+            const projectName = projectNames[data[1]];
+            const description = data[4] || '项目节点';
+            return `
+              <div>
+                <strong>${projectName}</strong><br/>
+                <strong>${month}月</strong><br/>
+                ${description}
+              </div>
+            `;
+          }
+        },
+        grid: {
+          left: 120,
+          right: 50,
+          top: 80,
+          bottom: 60
+        },
+        xAxis: {
+          type: 'category',
+          data: months,
+          axisLine: {
+            lineStyle: {
+              color: '#999'
+            }
+          },
+          axisTick: {
+            lineStyle: {
+              color: '#999'
+            }
+          },
+          axisLabel: {
+            color: '#666',
+            fontSize: 12
+          }
+        },
+        yAxis: {
+          type: 'category',
+          data: projectNames,
+          axisLine: {
+            lineStyle: {
+              color: '#999'
+            }
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            color: function(value, index) {
+              // 为不同项目设置不同颜色
+              return projects[index] ? projects[index].color : '#666';
+            },
+            fontSize: 14,
+            fontWeight: 'bold'
+          }
+        },
+        series: [
+          {
+            type: 'custom',
+            data: seriesData,
+            renderItem: function(params, api) {
+              const xValue = api.value(0);
+              const yValue = api.value(1);
+              const shape = api.value(2);
+              const color = api.value(3);
+              
+              const point = api.coord([xValue, yValue]);
+              const size = 12;
+              
+              let graphic;
+              
+              if (shape === 'triangle') {
+                // 绘制三角形
+                graphic = {
+                  type: 'polygon',
+                  x: point[0],
+                  y: point[1],
+                  style: {
+                    fill: color,
+                    stroke: color,
+                    lineWidth: 2
+                  },
+                  shape: {
+                    points: [
+                      [0, -size/2],
+                      [-size/2, size/2],
+                      [size/2, size/2]
+                    ]
+                  }
+                };
+              } else {
+                // 绘制圆形 (默认)
+                graphic = {
+                  type: 'circle',
+                  x: point[0],
+                  y: point[1],
+                  style: {
+                    fill: color,
+                    stroke: color,
+                    lineWidth: 2
+                  },
+                  shape: {
+                    r: size/2
+                  }
+                };
+              }
+              
+              return graphic;
+            }
+          },
+          // 添加连接线
+          {
+            type: 'custom',
+            data: projects.map((project, index) => ({
+              value: [0, index],
+              project: project
+            })),
+            renderItem: function(params, api) {
+              const yValue = api.value(1);
+              const project = params.data.project;
+              const yCoord = api.coord([0, yValue])[1];
+              
+              // 绘制项目时间线
+              const startX = api.coord([0, yValue])[0] - 20;
+              const endX = api.coord([6, yValue])[0] + 20;
+              
+              return {
+                type: 'line',
+                x: 0,
+                y: 0,
+                style: {
+                  stroke: project.color,
+                  lineWidth: 2,
+                  opacity: 0.3
+                },
+                shape: {
+                  x1: startX,
+                  y1: yCoord,
+                  x2: endX,
+                  y2: yCoord
+                }
+              };
+            }
+          }
+        ]
+      };
+
+      // 渲染图表
+      myChart.setOption(option);
+
+      // 窗口大小改变时重新渲染
+      window.addEventListener('resize', function() {
+        myChart.resize();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>项目进度时间线</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; font-family: 'Microsoft YaHei', sans-serif; }
+      #echart-container {
+        width: 100%;
+        height: 100%;
+        background-color: #f5f5f5;
+        position: relative;
+      }
+      .status-legend {
+        position: absolute;
+        top: 12px;
+        left: 16px;
+        z-index: 10;
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        padding: 8px 10px;
+        display: inline-flex;
+        gap: 16px;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        pointer-events: auto;
+      }
+      .status-legend .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #333;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .status-legend .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid #fff;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.08) inset;
+      }
+    </style>
+    <script src="./js/echart.min.js"></script>
+  </head>
+  <body>
+    <div id="echart-container">
+      <div class="status-legend" id="status-legend">
+        <div class="legend-item">
+          <span class="dot" style="background:#52c41a;"></span> 正常
+        </div>
+        <div class="legend-item">
+          <span class="dot" style="background:#faad14;"></span> 预警
+        </div>
+        <div class="legend-item">
+          <span class="dot" style="background:#f5222d;"></span> 延期
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const container = document.getElementById('echart-container');
+      const myChart = echarts.init(container);
+
+      const currentDate = new Date(2025, 7, 31);
+      const currentMonth = currentDate.getMonth() + 1;
+
+      const projects = [
+        {
+          name: '智慧农业',
+          status: 'green',
+          statusText: '正常',
+          description: '机器场项目PR完成，商务合同签署中',
+          color: '#5470c6',
+          nodes: [
+            { month: 6, day: 27, shape: 'circle', description: '启动建设发布' },
+            { month: 7, day: 28, shape: 'circle', description: '工业拆建上线' },
+            { month: 7, day: 29, shape: 'circle', description: '收入增长上线' },
+            { month: 8, day: 31, shape: 'circle', description: '项目评审' },
+            { month: 9, day: 15, shape: 'circle', description: '技术验收' }
+          ]
+        },
+        {
+          name: '数字政务',
+          status: 'yellow',
+          statusText: '预警',
+          description: '系统集成测试进行中，预计下周完成',
+          color: '#91cc75',
+          nodes: [
+            { month: 7, day: 1, shape: 'circle', description: '服务效能提升' },
+            { month: 8, day: 15, shape: 'circle', description: '操作体系搭建' },
+            { month: 10, day: 1, shape: 'circle', description: '系统营业交易' },
+            { month: 11, day: 15, shape: 'circle', description: '开通调试' }
+          ]
+        },
+        {
+          name: '智慧交通',
+          status: 'red',
+          statusText: '延期',
+          description: '设备采购延期，需要重新调整计划',
+          color: '#fac858',
+          nodes: [
+            { month: 9, day: 1, shape: 'triangle', description: '自动化开通' },
+            { month: 10, day: 15, shape: 'circle', description: '交工总体验收' },
+            { month: 12, day: 1, shape: 'triangle', description: '网关调整' }
+          ]
+        }
+      ];
+
+      const statusColors = { green: '#52c41a', yellow: '#faad14', red: '#f5222d' };
+      const months = ['6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+      const currentMonthIndex = currentMonth - 6;
+
+      const nodeData = [];
+      const nodeLabels = [];
+      const lineData = [];
+      const lineArrows = [];
+      const projectNames = [];
+      const statusData = [];
+
+      projects.forEach((project, projectIndex) => {
+        projectNames.push(project.name);
+
+        statusData.push({
+          value: [0, projectIndex, project.status, project.statusText, project.description, project.name, statusColors[project.status]]
+        });
+
+        project.nodes.forEach(node => {
+          nodeData.push({
+            value: [node.month - 6, projectIndex, node.shape, project.color, node.description],
+            itemStyle: { color: project.color }
+          });
+
+          nodeLabels.push({
+            value: [node.month - 6, projectIndex, node.description, project.color]
+          });
+        });
+
+        // 修改：每个项目的任务线覆盖整个时间轴（6月到12月）
+        lineData.push({ 
+          value: [0, months.length - 1, projectIndex, project.color] // 从0到6（6月到12月）
+        });
+        
+        // 任务线箭头在12月末端
+        lineArrows.push({ 
+          value: [months.length - 1, projectIndex, project.color] 
+        });
+      });
+
+      const option = {
+        title: {
+          text: '项目进度时间线',
+          left: 'center',
+          top: 20,
+          textStyle: { color: '#333', fontSize: 18, fontWeight: 'bold' }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: function(params) {
+            if (params.seriesName === '项目节点') {
+              const data = params.data.value;
+              const month = (data[0] + 6) + '月';
+              const projectName = projectNames[data[1]];
+              const description = data[4] || '项目节点';
+              return `
+                <div style="padding:8px;">
+                  <div style="font-weight:bold;margin-bottom:4px;">${projectName}</div>
+                  <div style="color:#666;margin-bottom:4px;">${month}</div>
+                  <div>${description}</div>
+                </div>
+              `;
+            }
+            return '';
+          }
+        },
+        grid: {
+          left: 260,
+          right: 100,
+          top: 100,
+          bottom: 100
+        },
+        xAxis: {
+          type: 'category',
+          data: months,
+          axisLine: { 
+            show: true, 
+            lineStyle: { color: '#333', width: 2 },
+            symbol: ['none', 'arrow'],
+            symbolSize: [10, 15]
+          },
+          axisTick: { 
+            show: true, 
+            lineStyle: { color: '#333', width: 2 }, 
+            length: 8 
+          },
+          axisLabel: {
+            color: '#333',
+            fontSize: 13,
+            fontWeight: 'bold',
+            margin: 15,
+            backgroundColor: '#e6f4ff',
+            padding: [8, 12],
+            borderRadius: 4
+          },
+          splitLine: { 
+            show: true, 
+            lineStyle: { 
+              color: '#ccc', 
+              type: 'solid', 
+              width: 2 
+            } 
+          }
+        },
+        yAxis: {
+          type: 'category',
+          data: projectNames,
+          axisLine: { 
+            show: true, 
+            lineStyle: { color: '#333', width: 2 },
+            symbol: ['none', 'arrow'],
+            symbolSize: [10, 15]
+          },
+          axisTick: { show: false },
+          axisLabel: { show: false },
+          splitLine: { 
+            show: true, 
+            lineStyle: { 
+              color: '#ccc', 
+              type: 'solid', 
+              width: 2 
+            } 
+          }
+        },
+        series: [
+          {
+            name: '项目任务线',
+            type: 'custom',
+            data: lineData,
+            renderItem: function(params, api) {
+              const startX = api.value(0);
+              const endX = api.value(1);
+              const yValue = api.value(2);
+              const color = api.value(3);
+
+              const startPoint = api.coord([startX, yValue]);
+              const endPoint = api.coord([endX, yValue]);
+
+              return {
+                type: 'line',
+                x: 0,
+                y: 0,
+                style: { 
+                  stroke: color, 
+                  lineWidth: 6, 
+                  opacity: 0.6,
+                  shadowColor: 'rgba(0,0,0,0.2)',
+                  shadowBlur: 3
+                },
+                shape: { x1: startPoint[0], y1: startPoint[1], x2: endPoint[0], y2: endPoint[1] }
+              };
+            },
+            z: 1
+          },
+          {
+            name: '任务线箭头',
+            type: 'custom',
+            data: lineArrows,
+            renderItem: function(params, api) {
+              const xValue = api.value(0);
+              const yValue = api.value(1);
+              const color = api.value(2);
+              const point = api.coord([xValue, yValue]);
+              const arrowSize = 10;
+
+              return {
+                type: 'polygon',
+                x: point[0] + arrowSize/2,
+                y: point[1],
+                style: {
+                  fill: color,
+                  stroke: '#fff',
+                  lineWidth: 2,
+                  shadowColor: 'rgba(0,0,0,0.3)',
+                  shadowBlur: 3
+                },
+                shape: {
+                  points: [
+                    [0, 0],
+                    [-arrowSize, -arrowSize/2],
+                    [-arrowSize/2, 0],
+                    [-arrowSize, arrowSize/2]
+                  ]
+                }
+              };
+            },
+            z: 2
+          },
+          {
+            name: '项目节点',
+            type: 'custom',
+            data: nodeData,
+            renderItem: function(params, api) {
+              const xValue = api.value(0);
+              const yValue = api.value(1);
+              const shape = api.value(2);
+              const color = api.value(3);
+              const point = api.coord([xValue, yValue]);
+              const size = 18;
+
+              if (shape === 'triangle') {
+                return {
+                  type: 'polygon',
+                  x: point[0],
+                  y: point[1],
+                  style: { 
+                    fill: color, 
+                    stroke: '#fff', 
+                    lineWidth: 3,
+                    shadowColor: 'rgba(0,0,0,0.2)',
+                    shadowBlur: 4
+                  },
+                  shape: { points: [[0, -size/2], [-size/2, size/2], [size/2, size/2]] }
+                };
+              } else {
+                return {
+                  type: 'circle',
+                  x: point[0],
+                  y: point[1],
+                  style: { 
+                    fill: color, 
+                    stroke: '#fff', 
+                    lineWidth: 3,
+                    shadowColor: 'rgba(0,0,0,0.2)',
+                    shadowBlur: 4
+                  },
+                  shape: { r: size/2 }
+                };
+              }
+            },
+            z: 3
+          },
+          {
+            name: '节点标签',
+            type: 'custom',
+            data: nodeLabels,
+            renderItem: function(params, api) {
+              const xValue = api.value(0);
+              const yValue = api.value(1);
+              const description = api.value(2);
+              const color = api.value(3);
+              const point = api.coord([xValue, yValue]);
+              
+              const textY = point[1] - 35;
+              const maxWidth = 80;
+              const displayText = description.length > 8 ? description.slice(0, 8) + '…' : description;
+
+              return {
+                type: 'group',
+                children: [
+                  {
+                    type: 'rect',
+                    x: point[0] - maxWidth/2,
+                    y: textY - 8,
+                    shape: { width: maxWidth, height: 16, r: 3 },
+                    style: {
+                      fill: 'rgba(255,255,255,0.95)',
+                      stroke: color,
+                      lineWidth: 1,
+                      shadowColor: 'rgba(0,0,0,0.1)',
+                      shadowBlur: 2
+                    }
+                  },
+                  {
+                    type: 'text',
+                    x: point[0],
+                    y: textY,
+                    style: {
+                      text: displayText,
+                      textAlign: 'center',
+                      textVerticalAlign: 'middle',
+                      fill: color,
+                      fontSize: 10,
+                      fontWeight: 'bold'
+                    }
+                  }
+                ]
+              };
+            },
+            z: 4
+          },
+          {
+            name: '项目状态卡片',
+            type: 'custom',
+            data: statusData,
+            renderItem: function(params, api) {
+              const yIdx = api.value(1);
+              const status = api.value(2);
+              const statusText = api.value(3);
+              const description = api.value(4);
+              const name = api.value(5);
+              const statusColor = api.value(6);
+              
+              const yCoord = api.coord([0, yIdx])[1];
+
+              const cardX = 20;
+              const cardW = 180;
+              const cardH = 36;
+              const cardY = yCoord - cardH / 2;
+              const descX = cardX + cardW + 12;
+
+              return {
+                type: 'group',
+                children: [
+                  {
+                    type: 'rect',
+                    x: cardX,
+                    y: cardY,
+                    shape: { width: cardW, height: cardH, r: 6 },
+                    style: {
+                      fill: '#ffffff',
+                      stroke: '#d9d9d9',
+                      lineWidth: 1,
+                      shadowColor: 'rgba(0,0,0,0.1)',
+                      shadowBlur: 6
+                    }
+                  },
+                  {
+                    type: 'text',
+                    x: cardX + 12,
+                    y: cardY + cardH / 2,
+                    style: {
+                      text: name && name.length > 8 ? name.slice(0, 8) + '…' : (name || ''),
+                      textAlign: 'left',
+                      textVerticalAlign: 'middle',
+                      fill: '#333',
+                      fontSize: 13,
+                      fontWeight: 'bold'
+                    }
+                  },
+                  {
+                    type: 'circle',
+                    x: cardX + cardW - 12,
+                    y: cardY + 12,
+                    shape: { r: 7 },
+                    style: { 
+                      fill: statusColor, 
+                      stroke: '#fff', 
+                      lineWidth: 2,
+                      shadowColor: 'rgba(0,0,0,0.2)',
+                      shadowBlur: 2
+                    }
+                  },
+                  {
+                    type: 'text',
+                    x: descX,
+                    y: yCoord,
+                    style: {
+                      text: description && description.length > 28 ? description.slice(0, 28) + '…' : (description || ''),
+                      textAlign: 'left',
+                      textVerticalAlign: 'middle',
+                      fill: '#666',
+                      fontSize: 12
+                    }
+                  }
+                ]
+              };
+            },
+            z: 2
+          },
+          {
+            name: '当前时间',
+            type: 'custom',
+            data: [{ value: [currentMonthIndex, 0] }],
+            renderItem: function(params, api) {
+              const xValue = api.value(0);
+              const point = api.coord([xValue, 0]);
+              const gridTop = api.coord([0, projects.length - 1])[1] - 50;
+              const gridBottom = api.coord([0, 0])[1] + 30;
+
+              return {
+                type: 'group',
+                children: [
+                  {
+                    type: 'line',
+                    x: 0, y: 0,
+                    style: { 
+                      stroke: '#ff4d4f', 
+                      lineWidth: 4, 
+                      opacity: 0.9,
+                      shadowColor: 'rgba(255,77,79,0.3)',
+                      shadowBlur: 4
+                    },
+                    shape: { x1: point[0], y1: gridTop, x2: point[0], y2: gridBottom }
+                  },
+                  {
+                    type: 'rect',
+                    x: point[0] - 30,
+                    y: gridTop - 28,
+                    shape: { width: 60, height: 22, r: 4 },
+                    style: { 
+                      fill: '#ff4d4f', 
+                      stroke: '#fff', 
+                      lineWidth: 2,
+                      shadowColor: 'rgba(0,0,0,0.2)',
+                      shadowBlur: 4
+                    }
+                  },
+                  {
+                    type: 'text',
+                    x: point[0],
+                    y: gridTop - 17,
+                    style: {
+                      text: '当前时间',
+                      textAlign: 'center',
+                      textVerticalAlign: 'middle',
+                      fill: '#fff',
+                      fontSize: 11,
+                      fontWeight: 'bold'
+                    }
+                  }
+                ]
+              };
+            },
+            z: 5
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+      window.addEventListener('resize', () => { myChart.resize(); });
+    </script>
+  </body>
+</html>
