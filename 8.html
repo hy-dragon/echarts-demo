@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>项目进度时间线</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        font-family: 'Microsoft YaHei', sans-serif;
+      }
+      #echart-container {
+        width: 100%;
+        height: 100%;
+        background-color: #f5f5f5;
+        position: relative;
+      }
+    </style>
+    <script src="./js/echart.min.js"></script>
+  </head>
+  <body>
+    <div id="echart-container"></div>
+    <script>
+      const container = document.getElementById('echart-container')
+      const myChart = echarts.init(container)
+      const projects = [
+        {
+          name: '智慧农业',
+          status: 'green',
+          description: '机器狗项目PR完成，商务合同签署中',
+          nodes: [
+            { date: '2025-01-11', description: '启动建设发布1' },
+            { date: '2025-01-27', description: '工业拆建上线2' },
+            { date: '2025-02-10', description: '收入增长上线3' },
+            { date: '2025-02-27', description: '项目评审4' },
+            { date: '2025-03-05', description: '技术验收5' },
+            { date: '2025-03-22', description: '启动建设发布6' },
+            { date: '2025-04-12', description: '启动建设发布7' },
+            { date: '2025-04-28', description: '启动建设发布8' },
+            { date: '2025-05-11', description: '启动建设发布9' },
+            { date: '2025-05-18', description: '启动建设发布10' },
+            { date: '2025-06-11', description: '启动建设发布11' },
+            { date: '2025-06-21', description: '启动建设发布12' },
+            { date: '2025-07-08', description: '启动建设发布13' },
+            { date: '2025-07-18', description: '启动建设发布14' },
+            { date: '2025-08-10', description: '启动建设发布15' },
+            { date: '2025-09-22', description: '启动建设发布16' },
+            { date: '2025-10-27', description: '启动建设发布17' },
+            { date: '2025-11-20', description: '启动建设发布18' },
+            { date: '2025-11-27', description: '启动建设发布19' },
+            { date: '2025-12-20', description: '启动建设发布20' },
+            { date: '2025-12-31', description: '启动建设发布21' }
+          ]
+        },
+        {
+          name: '数字政务',
+          status: 'yellow',
+          description: '系统集成测试进行中，预计下周完成',
+          nodes: [
+            { date: '2025-01-11', description: '启动建设发布1' },
+            { date: '2025-01-27', description: '工业拆建上线2' },
+            { date: '2025-02-10', description: '收入增长上线3' },
+            { date: '2025-02-27', description: '项目评审4' },
+            { date: '2025-03-05', description: '技术验收5' },
+            { date: '2025-03-22', description: '启动建设发布6' },
+            { date: '2025-04-12', description: '启动建设发布7' },
+            { date: '2025-04-28', description: '启动建设发布8' },
+            { date: '2025-05-11', description: '启动建设发布9' },
+            { date: '2025-05-18', description: '启动建设发布10' },
+            { date: '2025-06-11', description: '启动建设发布11' },
+            { date: '2025-06-21', description: '启动建设发布12' },
+            { date: '2025-07-08', description: '启动建设发布13' },
+            { date: '2025-07-18', description: '启动建设发布14' },
+            { date: '2025-08-10', description: '启动建设发布15' },
+            { date: '2025-09-22', description: '启动建设发布16' },
+            { date: '2025-10-27', description: '启动建设发布17' },
+            { date: '2025-11-20', description: '启动建设发布18' },
+            { date: '2025-11-27', description: '启动建设发布19' },
+            { date: '2025-12-20', description: '启动建设发布20' },
+            { date: '2025-12-31', description: '启动建设发布21' }
+          ]
+        },
+        {
+          name: '智慧交通',
+          status: 'red',
+          description: '设备采购延期，需要重新调整计划',
+          nodes: [
+            { date: '2025-01-11', description: '启动建设发布1' },
+            { date: '2025-01-27', description: '工业拆建上线2' },
+            { date: '2025-02-10', description: '收入增长上线3' },
+            { date: '2025-02-27', description: '项目评审4' },
+            { date: '2025-03-05', description: '技术验收5' },
+            { date: '2025-03-22', description: '启动建设发布6' },
+            { date: '2025-04-12', description: '启动建设发布7' },
+            { date: '2025-04-28', description: '启动建设发布8' },
+            { date: '2025-05-11', description: '启动建设发布9' },
+            { date: '2025-05-18', description: '启动建设发布10' },
+            { date: '2025-06-11', description: '启动建设发布11' },
+            { date: '2025-06-21', description: '启动建设发布12' },
+            { date: '2025-07-08', description: '启动建设发布13' },
+            { date: '2025-07-18', description: '启动建设发布14' },
+            { date: '2025-08-10', description: '启动建设发布15' },
+            { date: '2025-09-22', description: '启动建设发布16' },
+            { date: '2025-10-27', description: '启动建设发布17' },
+            { date: '2025-11-20', description: '启动建设发布18' },
+            { date: '2025-11-27', description: '启动建设发布19' },
+            { date: '2025-12-20', description: '启动建设发布20' },
+            { date: '2025-12-31', description: '启动建设发布21' }
+          ]
+        }
+      ]
+
+      const statusColors = { green: '#52c41a', yellow: '#faad14', red: '#f5222d' }
+
+      const currentDate = new Date().getTime()
+
+      // 12 个月份的重点日期
+      // 生成每个月的第一天时间戳
+      const year = new Date().getFullYear()
+      const monthTimestamps = []
+      for (let m = 0; m <= 12; m++) {
+        monthTimestamps.push(new Date(year, m, 1).getTime())
+        // monthTimestamps.push(echarts.time.format(new Date(year, m, 1).getTime(), '{yyyy}-{MM}-{dd}'))
+      }
+      // 计算“区间中点”时间（1月到2月、2月到3月……）
+      const midMonthDates = []
+      for (let i = 0; i < monthTimestamps.length - 1; i++) {
+        const mid = (monthTimestamps[i] + monthTimestamps[i + 1]) / 2
+        const date = echarts.time.format(mid, '{yyyy}-{MM}-{dd}')
+        midMonthDates.push(date)
+      }
+
+      let monthLabelData = []
+      monthLabelData = midMonthDates.map((item, index) => {
+        const startDate = echarts.time.format(monthTimestamps[index], '{yyyy}-{MM}-{dd}')
+        const endDate = echarts.time.format(monthTimestamps[index + 1], '{yyyy}-{MM}-{dd}')
+        return {
+          value: [item, 0, startDate, endDate, index + 1]
+        }
+      })
+      console.log(`🚀 ~ monthLabelData:`, monthLabelData)
+
+      // 自定义月份标签
+      // 类似 1-2 -> 1月 2-3 -> 2月 依次类推的效果
+      const monthLabelSeries = {
+        name: 'monthLabels',
+        type: 'custom',
+        coordinateSystem: 'cartesian2d',
+        // 修正数据格式：确保每个数据项都有正确的结构
+        data: monthLabelData,
+        renderItem: function (params, api) {
+          const dateValue = api.value(0)
+          const month = api.value(4)
+          const startDate = api.value(2)
+          const endDate = api.value(3)
+          const centerPoint = api.coord([dateValue, 0])
+          const startPixel = api.coord([startDate, 0])
+          const endPixel = api.coord([endDate, 0])
+
+          const fullWidth = Math.abs(endPixel[0] - startPixel[0]) * 0.9
+          // 背景宽度为0.9倍，留出间距
+          const backgroundWidth = fullWidth * 0.9
+
+          // 计算背景矩形的起始位置（居中显示）
+          const backgroundX = centerPoint[0] - backgroundWidth / 2
+          const backgroundY = centerPoint[1] - 35 // 向上偏移35像素
+
+          return {
+            type: 'group',
+            children: [
+              // 背景矩形
+              {
+                type: 'rect',
+                x: backgroundX,
+                y: backgroundY,
+                shape: {
+                  width: backgroundWidth,
+                  height: 25,
+                  r: [5]
+                },
+                style: {
+                  fill: '#E6A7F8'
+                }
+              },
+              // 文本标签
+              {
+                type: 'text',
+                x: centerPoint[0],
+                y: backgroundY + 12.5,
+                style: {
+                  text: `${month}月`,
+                  fontSize: 13,
+                  fontWeight: 'bold',
+                  fill: '#000',
+                  align: 'center',
+                  verticalAlign: 'middle'
+                }
+              }
+            ]
+          }
+        },
+        silent: true,
+        z: 10
+      }
+
+      // 最后一条计划线 不用显示出来用来显示一个空位
+      // 用于保持计划线第一条和最后一条都有空行
+      const lastProject = {
+        name: `最后一条计划线`,
+        type: 'line',
+        coordinateSystem: 'cartesian2d',
+        // data: project.nodes.map(item => [item.date, projectY]),
+        data: [
+          ['2025-01-01', projects.length + 1],
+          ['2025-12-31', projects.length + 1]
+        ],
+        lineStyle: {
+          color: '#000000',
+          width: 0,
+          type: 'solid'
+        },
+        hoverAnimation: false,
+        symbol: 'none',
+        z: 1
+      }
+      // 创建系列数据
+      const series = [monthLabelSeries]
+
+      // 为每个项目创建计划进度线和节点
+      projects.forEach((project, projectIndex) => {
+        const projectY = projectIndex + 1
+
+        const projectLine = {
+          name: `${project.name}-计划线`,
+          type: 'line',
+          coordinateSystem: 'cartesian2d',
+          // data: project.nodes.map(item => [item.date, projectY]),
+          data: [
+            ['2025-01-01', projectY],
+            ['2025-12-31', projectY]
+          ],
+          lineStyle: {
+            color: '#000000',
+            width: 2,
+            type: 'solid'
+          },
+          hoverAnimation: false,
+          symbol: 'none',
+          z: 1
+        }
+
+        // 创建项目计划线
+        series.push(projectLine)
+
+        // 项目计划已完成节点
+        const completedNodes = project.nodes.filter(node => new Date(node.date) <= currentDate)
+        const completedNodeSeries = {
+          name: `${project.name}-已完成节点`,
+          type: 'scatter',
+          coordinateSystem: 'cartesian2d',
+          data: completedNodes.map(node => [node.date, projectY]),
+          symbol: 'circle',
+          symbolSize: 20,
+          itemStyle: {
+            color: '#C3ECB2',
+            borderColor: '#000',
+            borderWidth: 1
+          },
+          animation: false,
+          emphasis: {
+            scale: false
+          },
+          label: {
+            show: true,
+            position: 'top',
+            formatter: params => {
+              const nodeIndex = completedNodes.findIndex(node => node.date === params.value[0])
+              return completedNodes[nodeIndex].description
+            },
+            width: 60,
+            overflow: 'break',
+            fontSize: 10,
+            color: '#666'
+          },
+          z: 3
+        }
+        series.push(completedNodeSeries)
+
+        // 项目计划未开始的节点
+        const pendingNodes = project.nodes.filter(node => new Date(node.date) > currentDate)
+        const pendingNodeSeries = {
+          name: `${project.name}-未完成节点`,
+          type: 'scatter',
+          coordinateSystem: 'cartesian2d',
+          data: pendingNodes.map(node => [node.date, projectY]),
+          symbolSize: 20,
+          itemStyle: {
+            color: '#fff',
+            borderColor: '#000',
+            borderWidth: 1
+          },
+          z: 3,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: params => {
+              const nodeIndex = pendingNodes.findIndex(node => node.date === params.value[0])
+              return pendingNodes[nodeIndex].description
+            },
+            fontSize: 10,
+            color: '#666'
+          }
+        }
+        series.push(pendingNodeSeries)
+
+        // 自定义当前时间线
+        const currentTimeSeries = {
+          name: '当前时间线',
+          type: 'custom',
+          coordinateSystem: 'cartesian2d',
+          data: [[echarts.time.format(currentDate, '{yyyy}-{MM}-{dd}'), 0]],
+          renderItem: function (params, api) {
+            const currentTimeValue = api.value(0)
+
+            // 计算起始和结束的 y 坐标（稍微超出范围）
+            const startY = -0.25 // 超出0刻度一点点
+            const endY = projects.length + 0.25 // 超出项目数量一点点
+
+            // 转换为像素坐标
+            const startPoint = api.coord([currentTimeValue, startY])
+            console.log(`🚀 ~ startPoint:`, startPoint)
+            const endPoint = api.coord([currentTimeValue, endY])
+            console.log(`🚀 ~ endPoint:`, endPoint)
+
+            if (!startPoint || !endPoint) {
+              return null
+            }
+
+            return {
+              type: 'group',
+              children: [
+                // 虚线
+                {
+                  type: 'line',
+                  shape: {
+                    x1: startPoint[0],
+                    y1: startPoint[1], // 使用转换后的像素坐标
+                    x2: endPoint[0],
+                    y2: endPoint[1] // 使用转换后的像素坐标
+                  },
+                  style: {
+                    stroke: '#FF0000',
+                    lineWidth: 1,
+                    lineDash: [5, 5] // 虚线样式 [实线长度, 空隙长度]
+                  }
+                },
+                // 红旗 Emoji
+                {
+                  type: 'text',
+                  position: [startPoint[0] - 20, startPoint[1] - 40],
+                  style: {
+                    text: '🚩',
+                    fontSize: 16,
+                    align: 'center'
+                  }
+                },
+                // 标签
+                {
+                  type: 'text',
+                  position: [startPoint[0], startPoint[1] - 20],
+                  style: {
+                    text: '当前',
+                    fill: '#FF0000',
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    align: 'center'
+                  }
+                }
+              ]
+            }
+          },
+          silent: true,
+          z: 5
+        }
+        series.push(currentTimeSeries)
+      })
+
+      let statusData = []
+      statusData = projects.map((project, projectIndex) => [
+        0,
+        projectIndex + 1,
+        project.name,
+        project.status,
+        project.description
+      ])
+      console.log(`🚀 ~ statusData:`, statusData)
+      // y 轴显示的项目状态卡片
+      const projectStatusCardSeries = {
+        name: '项目状态卡片',
+        type: 'custom',
+        data: statusData,
+        renderItem: function (params, api) {
+          const yIdx = api.value(1)
+          const projectName = api.value(2)
+          const statusColor = api.value(3)
+          const description = api.value(4)
+
+          const yCoord = api.coord([0, yIdx])[1]
+
+          const cardX = 20
+          const cardW = 180
+          const cardH = 36
+          const cardY = yCoord - cardH / 2
+          const gapRate = 0.05 // 描述文字与卡片右边距离为卡片宽度的8%
+          const gap = cardW * gapRate
+          const descX = cardX + cardW + gap
+          const maxDescWidth = 100 // 最大描述文字宽度，超出自动换行
+
+          return {
+            type: 'group',
+            children: [
+              {
+                type: 'rect',
+                x: cardX,
+                y: cardY,
+                shape: { width: cardW, height: cardH, r: 6 },
+                style: {
+                  fill: '#ffffff',
+                  stroke: '#d9d9d9',
+                  lineWidth: 1,
+                  shadowColor: 'rgba(0,0,0,0.1)',
+                  shadowBlur: 6
+                }
+              },
+              {
+                type: 'text',
+                x: cardX + 12,
+                y: cardY + cardH / 2,
+                style: {
+                  text: projectName,
+                  // text: projectName && projectName.length > 8 ? projectName.slice(0, 8) + '…' : projectName || '',
+                  textAlign: 'left',
+                  textVerticalAlign: 'middle',
+                  fill: '#333',
+                  fontSize: 13,
+                  fontWeight: 'bold'
+                }
+              },
+              {
+                type: 'circle',
+                x: cardX + cardW - 12,
+                y: cardY + 12,
+                shape: { r: 7 },
+                style: {
+                  fill: statusColor,
+                  stroke: '#fff',
+                  lineWidth: 2,
+                  shadowColor: 'rgba(0,0,0,0.2)',
+                  shadowBlur: 2
+                }
+              },
+              {
+                type: 'text',
+                x: descX,
+                y: yCoord,
+                style: {
+                  text: description && description.length > 0 ? description : '',
+                  textAlign: 'left',
+                  textVerticalAlign: 'middle',
+                  fill: '#666',
+                  fontSize: 12,
+                  // 最大宽度限制，超出换行
+                  width: maxDescWidth,
+                  // 支持自动换行
+                  overflow: 'break',
+                  // 允许显示多行文字
+                  lineHeight: 16
+                }
+              }
+            ]
+          }
+        },
+        z: 2
+      }
+
+      const option = {
+        title: {
+          text: '项目进度时间线',
+          left: 'center',
+          top: 20,
+          textStyle: {
+            color: '#333',
+            fontSize: 18,
+            fontWeight: 'bold'
+          }
+        },
+        grid: {
+          left: 320,
+          right: 100,
+          top: 100,
+          bottom: 100
+        },
+        xAxis: {
+          type: 'time',
+          position: 'top',
+          min: '2025-01-01',
+          max: '2025-12-31',
+          splitNumber: 12,
+          axisTick: { show: false },
+          axisLine: { show: false },
+          splitLine: { show: true },
+          axisLabel: {
+            show: false,
+            formatter: '{MMM}'
+          }
+        },
+        yAxis: {
+          type: 'value',
+          inverse: true,
+          interval: 1, // 确保每个项目有足够空间
+          axisLabel: { show: false },
+          axisTick: { show: false },
+          axisLine: { show: false },
+          splitLine: { show: false }
+        },
+        series: [projectStatusCardSeries, ...series]
+      }
+
+      myChart.setOption(option)
+
+      // 重要：窗口大小改变时重新计算标签位置
+      window.addEventListener('resize', () => {
+        myChart.resize()
+      })
+    </script>
+  </body>
+</html>
